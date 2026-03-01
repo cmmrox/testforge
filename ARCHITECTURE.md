@@ -5,8 +5,8 @@ This document contains the **system architecture** for TestForge v1 (UI-first).
 ## 1) High-level component diagram
 
 ```mermaid
-flowchart LR
-  U[User (Browser)] -->|HTTPS| WEB[Next.js App (UI + API Route Handlers)]
+graph LR
+  U["User (Browser)"] -->|HTTPS| WEB["Next.js App\n(UI + API Route Handlers)"]
 
   WEB -->|SQL| PG[(PostgreSQL)]
   WEB -->|enqueue jobs| REDIS[(Redis)]
@@ -19,7 +19,7 @@ flowchart LR
   REDIS --- Q
 
   subgraph W[Workers]
-    WUI[UI Runner Worker\n(Node.js + Playwright)]
+    WUI["UI Runner Worker\n(Node.js + Playwright)"]
   end
 
   Q1 --> WUI
@@ -35,7 +35,7 @@ flowchart LR
 ```mermaid
 sequenceDiagram
   autonumber
-  actor User
+  participant User as QA/User
   participant Web as Next.js Web/API
   participant DB as PostgreSQL
   participant R as Redis/BullMQ
