@@ -11,14 +11,15 @@ graph LR
   WEB -->|SQL| PG[(PostgreSQL)]
   WEB -->|enqueue jobs| REDIS[(Redis)]
 
-  subgraph Q[Queues (BullMQ)]
+  subgraph "Queues (BullMQ)"
     Q1[ui-runs]
     Q2[artifact-postprocess (optional)]
   end
 
-  REDIS --- Q
+  REDIS --- Q1
+  REDIS --- Q2
 
-  subgraph W[Workers]
+  subgraph "Workers"
     WUI["UI Runner Worker\n(Node.js + Playwright)"]
   end
 
@@ -35,12 +36,12 @@ graph LR
 ```mermaid
 sequenceDiagram
   autonumber
-  participant User as QA/User
-  participant Web as Next.js Web/API
+  participant User as "QA / User"
+  participant Web as "Next.js Web/API"
   participant DB as PostgreSQL
-  participant R as Redis/BullMQ
-  participant Worker as UI Worker (Playwright)
-  participant FS as Local Artifacts FS
+  participant R as "Redis/BullMQ"
+  participant Worker as "UI Worker (Playwright)"
+  participant FS as "Local Artifacts FS"
 
   User->>Web: Click "Run" (plan/cases + env)
   Web->>DB: Create TestRun (status=queued)
