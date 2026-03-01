@@ -1,0 +1,35 @@
+# Node / Next.js
+node_modules/
+.next/
+out/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+logs/
+*.log
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Coverage / reports
+coverage/
+*.lcov
+
+# Redis / artifacts / tmp
+redis-data/
+testforge-artifacts/
+tmp/
+
+# Docker
+*.pid
+*.seed
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

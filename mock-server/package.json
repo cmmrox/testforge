@@ -1,0 +1,24 @@
+{
+  "name": "testforge-mock-server",
+  "version": "1.0.0",
+  "description": "Combined Swagger UI + Prism mock for TestForge API",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": ["testforge", "mock", "openapi"],
+  "author": "CMMBOT",
+  "license": "MIT",
+  "type": "commonjs",
+  "dependencies": {
+    "@stoplight/prism-cli": "^5.14.2",
+    "@stoplight/prism-core": "^5.8.0",
+    "@stoplight/prism-http-server": "^5.12.2",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "http-proxy-middleware": "^3.0.5",
+    "morgan": "^1.10.0",
+    "swagger-ui-express": "^5.0.1",
+    "yaml": "^2.6.0"
+  }
+}

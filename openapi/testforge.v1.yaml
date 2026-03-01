@@ -1,0 +1,1500 @@
+openapi: 3.1.0
+info:
+  title: TestForge Control Plane API
+  version: v1
+  description: |
+    API-first contract for the TestForge QA automation platform. All functionality
+    available in the web UI must be reachable through this API. Responses follow
+    JSON conventions, and every endpoint enforces RBAC based on the caller's role
+    (admin, editor, runner, viewer).
+servers:
+  - url: /
+    description: Same host (mock server)
+  - url: https://api.testforge.local/v1
+    description: Local development
+  - url: https://api.testforge.app/v1
+    description: Production
+security:
+  - sessionAuth: []
+tags:
+  - name: Auth
+  - name: Projects
+  - name: Environments
+  - name: Domains
+  - name: TestPlans
+  - name: TestCases
+  - name: Runs
+  - name: Artifacts
+  - name: Agent
+  - name: Audit
+paths:
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Log in with email/password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Authenticated session
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthSession'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: Invalidate current session
+      responses:
+        '204':
+          description: Logged out
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /auth/me:
+    get:
+      tags: [Auth]
+      summary: Get current user profile
+      responses:
+        '200':
+          description: Current user info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /projects:
+    get:
+      tags: [Projects]
+      summary: List projects
+      parameters:
+        - $ref: '#/components/parameters/PaginationCursor'
+        - $ref: '#/components/parameters/PaginationLimit'
+      responses:
+        '200':
+          description: Projects with counts and last run info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectListResponse'
+    post:
+      tags: [Projects]
+      summary: Create project
+      description: Admin or Editor only
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectCreateRequest'
+      responses:
+        '201':
+          description: Created project
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+  /projects/{projectId}:
+    parameters:
+      - $ref: '#/components/parameters/ProjectId'
+    get:
+      tags: [Projects]
+      summary: Get project detail
+      responses:
+        '200':
+          description: Project with statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectDetail'
+    patch:
+      tags: [Projects]
+      summary: Update project metadata
+      description: Admin or Editor only
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectUpdateRequest'
+      responses:
+        '200':
+          description: Updated project
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+    delete:
+      tags: [Projects]
+      summary: Archive project
+      responses:
+        '204':
+          description: Project archived
+  /projects/{projectId}/environments:
+    parameters:
+      - $ref: '#/components/parameters/ProjectId'
+    get:
+      tags: [Environments]
+      summary: List environments
+      responses:
+        '200':
+          description: Environment list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvironmentListResponse'
+    post:
+      tags: [Environments]
+      summary: Create environment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnvironmentCreateRequest'
+      responses:
+        '201':
+          description: Created environment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Environment'
+  /environments/{environmentId}:
+    parameters:
+      - $ref: '#/components/parameters/EnvironmentId'
+    get:
+      tags: [Environments]
+      summary: Get environment
+      responses:
+        '200':
+          description: Environment detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Environment'
+    patch:
+      tags: [Environments]
+      summary: Update environment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnvironmentUpdateRequest'
+      responses:
+        '200':
+          description: Updated environment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Environment'
+    delete:
+      tags: [Environments]
+      summary: Delete environment
+      responses:
+        '204':
+          description: Deleted
+  /environments/{environmentId}/test-connection:
+    post:
+      tags: [Environments]
+      summary: Simulate connection
+      description: Performs HTTP GET to baseUrl and returns latency; does not mutate state.
+      parameters:
+        - $ref: '#/components/parameters/EnvironmentId'
+      responses:
+        '200':
+          description: Connection result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectionTestResponse'
+  /projects/{projectId}/domains:
+    parameters:
+      - $ref: '#/components/parameters/ProjectId'
+    get:
+      tags: [Domains]
+      summary: List domains/areas
+      responses:
+        '200':
+          description: Domain list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainListResponse'
+    post:
+      tags: [Domains]
+      summary: Create domain
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DomainCreateRequest'
+      responses:
+        '201':
+          description: Created domain
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Domain'
+  /domains/{domainId}:
+    parameters:
+      - $ref: '#/components/parameters/DomainId'
+    patch:
+      tags: [Domains]
+      summary: Update domain
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DomainUpdateRequest'
+      responses:
+        '200':
+          description: Updated domain
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Domain'
+    delete:
+      tags: [Domains]
+      summary: Delete domain
+      responses:
+        '204':
+          description: Deleted
+  /projects/{projectId}/test-plans:
+    parameters:
+      - $ref: '#/components/parameters/ProjectId'
+    get:
+      tags: [TestPlans]
+      summary: List test plans
+      parameters:
+        - $ref: '#/components/parameters/DomainFilter'
+        - $ref: '#/components/parameters/StatusFilter'
+      responses:
+        '200':
+          description: Plan list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestPlanListResponse'
+    post:
+      tags: [TestPlans]
+      summary: Create manual test plan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestPlanCreateRequest'
+      responses:
+        '201':
+          description: Plan created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestPlan'
+  /projects/{projectId}/test-plans/generate:
+    post:
+      tags: [Agent]
+      summary: Agent-assisted plan generation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestPlanGenerationRequest'
+      responses:
+        '201':
+          description: Draft plan with generated cases
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestPlanGenerationResponse'
+  /test-plans/{testPlanId}:
+    parameters:
+      - $ref: '#/components/parameters/TestPlanId'
+    get:
+      tags: [TestPlans]
+      summary: Get plan detail
+      responses:
+        '200':
+          description: Plan detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestPlanDetail'
+    patch:
+      tags: [TestPlans]
+      summary: Update plan metadata
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestPlanUpdateRequest'
+      responses:
+        '200':
+          description: Updated plan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestPlan'
+    delete:
+      tags: [TestPlans]
+      summary: Archive plan
+      responses:
+        '204':
+          description: Archived
+  /test-plans/{testPlanId}/approve:
+    post:
+      tags: [TestPlans]
+      summary: Approve draft plan
+      responses:
+        '200':
+          description: Approved plan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestPlan'
+  /test-plans/{testPlanId}/items:
+    get:
+      tags: [TestPlans]
+      summary: List cases attached to plan
+      parameters:
+        - $ref: '#/components/parameters/TestPlanId'
+      responses:
+        '200':
+          description: Plan items
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestPlanItemList'
+  /projects/{projectId}/test-cases:
+    parameters:
+      - $ref: '#/components/parameters/ProjectId'
+    get:
+      tags: [TestCases]
+      summary: List test cases
+      parameters:
+        - $ref: '#/components/parameters/DomainFilter'
+        - $ref: '#/components/parameters/StatusFilter'
+        - name: q
+          in: query
+          schema:
+            type: string
+          description: Search query
+      responses:
+        '200':
+          description: Test case list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestCaseListResponse'
+    post:
+      tags: [TestCases]
+      summary: Create test case
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestCaseCreateRequest'
+      responses:
+        '201':
+          description: Created test case
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestCase'
+  /test-cases/{testCaseId}:
+    parameters:
+      - $ref: '#/components/parameters/TestCaseId'
+    get:
+      tags: [TestCases]
+      summary: Get test case detail
+      responses:
+        '200':
+          description: Test case detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestCaseDetail'
+    patch:
+      tags: [TestCases]
+      summary: Update metadata/labels
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestCaseUpdateRequest'
+      responses:
+        '200':
+          description: Updated test case
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestCase'
+    delete:
+      tags: [TestCases]
+      summary: Archive test case
+      responses:
+        '204':
+          description: Archived
+  /test-cases/{testCaseId}/versions:
+    get:
+      tags: [TestCases]
+      summary: List versions
+      parameters:
+        - $ref: '#/components/parameters/TestCaseId'
+      responses:
+        '200':
+          description: Versions list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestCaseVersionListResponse'
+    post:
+      tags: [TestCases]
+      summary: Create new version
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestCaseVersionCreateRequest'
+      responses:
+        '201':
+          description: Created version
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestCaseVersion'
+  /test-case-versions/{testCaseVersionId}:
+    get:
+      tags: [TestCases]
+      summary: Get specific version
+      parameters:
+        - $ref: '#/components/parameters/TestCaseVersionId'
+      responses:
+        '200':
+          description: Version detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestCaseVersion'
+  /projects/{projectId}/runs:
+    parameters:
+      - $ref: '#/components/parameters/ProjectId'
+    get:
+      tags: [Runs]
+      summary: List runs
+      parameters:
+        - $ref: '#/components/parameters/StatusFilter'
+        - name: environmentId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: triggeredBy
+          in: query
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Runs list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestRunListResponse'
+    post:
+      tags: [Runs]
+      summary: Trigger run
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestRunCreateRequest'
+      responses:
+        '202':
+          description: Run accepted and queued
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestRun'
+  /runs/{testRunId}:
+    parameters:
+      - $ref: '#/components/parameters/TestRunId'
+    get:
+      tags: [Runs]
+      summary: Get run detail
+      responses:
+        '200':
+          description: Run detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestRunDetail'
+    post:
+      tags: [Runs]
+      summary: Update run (internal worker hook)
+      description: Used by workers to push status transitions.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestRunUpdateRequest'
+      responses:
+        '200':
+          description: Updated run
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestRun'
+  /runs/{testRunId}/items:
+    get:
+      tags: [Runs]
+      summary: List run items
+      parameters:
+        - $ref: '#/components/parameters/TestRunId'
+      responses:
+        '200':
+          description: Run items
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestRunItemListResponse'
+  /runs/{testRunId}/artifacts:
+    get:
+      tags: [Artifacts]
+      summary: List artifacts for run
+      parameters:
+        - $ref: '#/components/parameters/TestRunId'
+      responses:
+        '200':
+          description: Artifact list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArtifactListResponse'
+  /artifacts/{artifactId}:
+    parameters:
+      - $ref: '#/components/parameters/ArtifactId'
+    get:
+      tags: [Artifacts]
+      summary: Get artifact metadata
+      responses:
+        '200':
+          description: Artifact metadata (download URL included)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Artifact'
+  /audit/logs:
+    get:
+      tags: [Audit]
+      summary: List audit log entries
+      parameters:
+        - name: entityType
+          in: query
+          schema:
+            type: string
+        - name: entityId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - $ref: '#/components/parameters/PaginationCursor'
+        - $ref: '#/components/parameters/PaginationLimit'
+      responses:
+        '200':
+          description: Audit log list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditLogListResponse'
+components:
+  securitySchemes:
+    sessionAuth:
+      type: apiKey
+      in: cookie
+      name: testforge_session
+  parameters:
+    ProjectId:
+      name: projectId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    EnvironmentId:
+      name: environmentId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    DomainId:
+      name: domainId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    TestPlanId:
+      name: testPlanId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    TestCaseId:
+      name: testCaseId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    TestCaseVersionId:
+      name: testCaseVersionId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    TestRunId:
+      name: testRunId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    ArtifactId:
+      name: artifactId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    PaginationCursor:
+      name: cursor
+      in: query
+      schema:
+        type: string
+      description: Opaque cursor for pagination
+    PaginationLimit:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+    DomainFilter:
+      name: domainId
+      in: query
+      schema:
+        type: string
+        format: uuid
+    StatusFilter:
+      name: status
+      in: query
+      schema:
+        type: string
+  responses:
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+  schemas:
+    ErrorResponse:
+      type: object
+      required: [error, message]
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+          additionalProperties: true
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+    AuthSession:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        expiresAt:
+          type: string
+          format: date-time
+    User:
+      type: object
+      required: [id, email, role, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+          enum: [admin, editor, runner, viewer]
+        createdAt:
+          type: string
+          format: date-time
+    Project:
+      type: object
+      required: [id, name, tags, archived, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        archived:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+    ProjectDetail:
+      allOf:
+        - $ref: '#/components/schemas/Project'
+        - type: object
+          properties:
+            environmentCount:
+              type: integer
+            testPlanCount:
+              type: integer
+            testCaseCount:
+              type: integer
+            lastRun:
+              $ref: '#/components/schemas/TestRunSummary'
+    ProjectCreateRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        defaultEnvironment:
+          $ref: '#/components/schemas/EnvironmentCreateRequest'
+        domains:
+          type: array
+          items:
+            $ref: '#/components/schemas/DomainCreateRequest'
+    ProjectUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        archived:
+          type: boolean
+    ProjectListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProjectDetail'
+        nextCursor:
+          type: string
+    Environment:
+      type: object
+      required: [id, projectId, name, baseUrl, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        projectId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        baseUrl:
+          type: string
+          format: uri
+        loginRecipe:
+          $ref: '#/components/schemas/LoginRecipe'
+        createdAt:
+          type: string
+          format: date-time
+    LoginRecipe:
+      type: object
+      properties:
+        loginUrl:
+          type: string
+          format: uri
+        locatorUsername:
+          type: string
+        locatorPassword:
+          type: string
+        locatorSubmit:
+          type: string
+        locatorPostLoginAssert:
+          type: string
+        totpEnabled:
+          type: boolean
+        locatorTotp:
+          type: string
+        locatorTotpSubmit:
+          type: string
+        secretRefs:
+          type: object
+          properties:
+            usernameSecretId:
+              type: string
+              format: uuid
+            passwordSecretId:
+              type: string
+              format: uuid
+            totpSecretId:
+              type: string
+              format: uuid
+    EnvironmentCreateRequest:
+      type: object
+      required: [name, baseUrl]
+      properties:
+        name:
+          type: string
+        baseUrl:
+          type: string
+          format: uri
+        loginRecipe:
+          $ref: '#/components/schemas/LoginRecipeInput'
+    LoginRecipeInput:
+      allOf:
+        - $ref: '#/components/schemas/LoginRecipe'
+        - type: object
+          properties:
+            username:
+              type: string
+            password:
+              type: string
+            totpSecret:
+              type: string
+    EnvironmentUpdateRequest:
+      allOf:
+        - $ref: '#/components/schemas/EnvironmentCreateRequest'
+    EnvironmentListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Environment'
+    ConnectionTestResponse:
+      type: object
+      properties:
+        reachable:
+          type: boolean
+        latencyMs:
+          type: integer
+        statusCode:
+          type: integer
+        error:
+          type: string
+    Domain:
+      type: object
+      required: [id, projectId, name, color, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        projectId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        color:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    DomainCreateRequest:
+      type: object
+      required: [name, color]
+      properties:
+        name:
+          type: string
+        color:
+          type: string
+    DomainUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        color:
+          type: string
+    DomainListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Domain'
+    TestPlan:
+      type: object
+      required: [id, projectId, title, status, generatedBy, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        projectId:
+          type: string
+          format: uuid
+        domainId:
+          type: string
+          format: uuid
+          nullable: true
+        title:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+          enum: [draft, approved, archived]
+        generatedBy:
+          type: string
+          enum: [agent, manual]
+        createdBy:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+    TestPlanDetail:
+      allOf:
+        - $ref: '#/components/schemas/TestPlan'
+        - type: object
+          properties:
+            recommendedCases:
+              type: array
+              items:
+                $ref: '#/components/schemas/TestCaseDraft'
+            risks:
+              type: array
+              items:
+                type: string
+    TestPlanCreateRequest:
+      type: object
+      required: [title]
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        domainId:
+          type: string
+          format: uuid
+        generatedBy:
+          type: string
+          enum: [manual]
+        draftCases:
+          type: array
+          items:
+            $ref: '#/components/schemas/TestCaseVersionSpec'
+    TestPlanUpdateRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        domainId:
+          type: string
+          format: uuid
+    TestPlanGenerationRequest:
+      type: object
+      required: [title, goal]
+      properties:
+        title:
+          type: string
+        domainId:
+          type: string
+          format: uuid
+        goal:
+          type: string
+        preconditions:
+          type: array
+          items:
+            type: string
+        acceptanceCriteria:
+          type: array
+          items:
+            type: string
+        testDataHints:
+          type: array
+          items:
+            type: string
+        artifactIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+    TestPlanGenerationResponse:
+      type: object
+      properties:
+        plan:
+          $ref: '#/components/schemas/TestPlan'
+        suggestedCases:
+          type: array
+          items:
+            $ref: '#/components/schemas/TestCaseDraft'
+        risks:
+          type: array
+          items:
+            type: string
+    TestPlanListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/TestPlan'
+        nextCursor:
+          type: string
+    TestPlanItemList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/TestPlanItem'
+    TestPlanItem:
+      type: object
+      properties:
+        planId:
+          type: string
+          format: uuid
+        testCaseId:
+          type: string
+          format: uuid
+        latestVersionId:
+          type: string
+          format: uuid
+    TestCase:
+      type: object
+      required: [id, projectId, title, status, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        projectId:
+          type: string
+          format: uuid
+        domainId:
+          type: string
+          format: uuid
+          nullable: true
+        title:
+          type: string
+        objective:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+          enum: [active, archived]
+        latestVersion:
+          $ref: '#/components/schemas/TestCaseVersion'
+        createdAt:
+          type: string
+          format: date-time
+    TestCaseDetail:
+      allOf:
+        - $ref: '#/components/schemas/TestCase'
+        - type: object
+          properties:
+            versions:
+              type: array
+              items:
+                $ref: '#/components/schemas/TestCaseVersion'
+    TestCaseDraft:
+      type: object
+      properties:
+        title:
+          type: string
+        objective:
+          type: string
+        spec:
+          $ref: '#/components/schemas/TestCaseVersionSpec'
+    TestCaseCreateRequest:
+      type: object
+      required: [title]
+      properties:
+        title:
+          type: string
+        objective:
+          type: string
+        domainId:
+          type: string
+          format: uuid
+        tags:
+          type: array
+          items:
+            type: string
+        spec:
+          $ref: '#/components/schemas/TestCaseVersionSpec'
+    TestCaseUpdateRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        objective:
+          type: string
+        domainId:
+          type: string
+          format: uuid
+        tags:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+          enum: [active, archived]
+    TestCaseListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/TestCase'
+        nextCursor:
+          type: string
+    TestCaseVersion:
+      type: object
+      required: [id, testCaseId, versionNo, spec, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        testCaseId:
+          type: string
+          format: uuid
+        versionNo:
+          type: integer
+        spec:
+          $ref: '#/components/schemas/TestCaseVersionSpec'
+        changeNote:
+          type: string
+        createdBy:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+    TestCaseVersionListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/TestCaseVersion'
+    TestCaseVersionCreateRequest:
+      type: object
+      required: [spec]
+      properties:
+        changeNote:
+          type: string
+        spec:
+          $ref: '#/components/schemas/TestCaseVersionSpec'
+    TestCaseVersionSpec:
+      type: object
+      required: [kind, steps]
+      properties:
+        kind:
+          type: string
+          enum: [ui]
+        title:
+          type: string
+        preconditions:
+          type: array
+          items:
+            type: string
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/TestStep'
+        evidence:
+          $ref: '#/components/schemas/EvidencePolicy'
+    TestStep:
+      type: object
+      required: [type]
+      properties:
+        type:
+          type: string
+          enum: [navigate, fill, click, select, assertVisible, assertText, waitFor]
+        locator:
+          type: string
+        value:
+          type: string
+        mask:
+          type: boolean
+        assertion:
+          type: string
+        locatorHint:
+          type: string
+    EvidencePolicy:
+      type: object
+      properties:
+        screenshots:
+          $ref: '#/components/schemas/EvidenceMode'
+        video:
+          $ref: '#/components/schemas/EvidenceMode'
+        trace:
+          $ref: '#/components/schemas/EvidenceMode'
+    EvidenceMode:
+      type: string
+      enum: [always, onFail, never]
+    TestRun:
+      type: object
+      required: [id, projectId, status, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        projectId:
+          type: string
+          format: uuid
+        environmentId:
+          type: string
+          format: uuid
+          nullable: true
+        triggeredBy:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [queued, running, passed, failed, canceled]
+        startedAt:
+          type: string
+          format: date-time
+          nullable: true
+        finishedAt:
+          type: string
+          format: date-time
+          nullable: true
+        durationMs:
+          type: integer
+          nullable: true
+        summary:
+          type: object
+          additionalProperties: true
+        createdAt:
+          type: string
+          format: date-time
+    TestRunSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          type: string
+        finishedAt:
+          type: string
+          format: date-time
+    TestRunDetail:
+      allOf:
+        - $ref: '#/components/schemas/TestRun'
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/TestRunItem'
+            artifacts:
+              type: array
+              items:
+                $ref: '#/components/schemas/Artifact'
+    TestRunListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/TestRun'
+        nextCursor:
+          type: string
+    TestRunCreateRequest:
+      type: object
+      required: [environmentId]
+      properties:
+        environmentId:
+          type: string
+          format: uuid
+        planId:
+          type: string
+          format: uuid
+        testCaseVersionIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+        retries:
+          type: integer
+          minimum: 0
+          maximum: 3
+        evidenceOverride:
+          $ref: '#/components/schemas/EvidencePolicy'
+    TestRunUpdateRequest:
+      type: object
+      properties:
+        status:
+          type: string
+        startedAt:
+          type: string
+          format: date-time
+        finishedAt:
+          type: string
+          format: date-time
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/TestRunItem'
+    TestRunItem:
+      type: object
+      required: [id, status]
+      properties:
+        id:
+          type: string
+          format: uuid
+        testCaseVersionId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [queued, running, passed, failed, skipped]
+        startedAt:
+          type: string
+          format: date-time
+          nullable: true
+        finishedAt:
+          type: string
+          format: date-time
+          nullable: true
+        durationMs:
+          type: integer
+          nullable: true
+        failureSummary:
+          type: string
+        failureDetails:
+          type: object
+          additionalProperties: true
+    TestRunItemListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/TestRunItem'
+    Artifact:
+      type: object
+      required: [id, runId, type, filePath]
+      properties:
+        id:
+          type: string
+          format: uuid
+        runId:
+          type: string
+          format: uuid
+        runItemId:
+          type: string
+          format: uuid
+          nullable: true
+        type:
+          type: string
+          enum: [screenshot, video, trace, report, log, other]
+        filePath:
+          type: string
+        downloadUrl:
+          type: string
+          format: uri
+        mimeType:
+          type: string
+        sizeBytes:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+    ArtifactListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Artifact'
+    AuditLogEntry:
+      type: object
+      required: [id, actorUserId, action, entityType, at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        actorUserId:
+          type: string
+          format: uuid
+        action:
+          type: string
+        entityType:
+          type: string
+        entityId:
+          type: string
+          format: uuid
+          nullable: true
+        at:
+          type: string
+          format: date-time
+        details:
+          type: object
+          additionalProperties: true
+    AuditLogListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditLogEntry'
+        nextCursor:
+          type: string
