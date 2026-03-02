@@ -588,6 +588,87 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TestCaseListResponse'
+              examples:
+                odoo:
+                  summary: Test cases for Odoo ERP
+                  value:
+                    data:
+                      - id: a1b2c3d4-0001-4000-8000-600000000001
+                        projectId: a1b2c3d4-0001-4000-8000-200000000001
+                        domainId: a1b2c3d4-0001-4000-8000-400000000001
+                        title: Admin login with valid credentials
+                        objective: Verify admin can log in successfully
+                        tags: [smoke, auth]
+                        status: active
+                        createdAt: '2025-11-20T09:30:00Z'
+                        latestVersion:
+                          id: a1b2c3d4-0001-4000-8000-700000000001
+                          testCaseId: a1b2c3d4-0001-4000-8000-600000000001
+                          versionNo: 1
+                          spec:
+                            kind: ui
+                            preconditions: ['Admin account exists']
+                            steps:
+                              - type: navigate
+                                url: '${BASE_URL}/web/login'
+                              - type: fill
+                                locator: 'input[name=login]'
+                                value: '${ENV_USERNAME}'
+                              - type: fill
+                                locator: 'input[name=password]'
+                                value: '${ENV_PASSWORD}'
+                                mask: true
+                              - type: click
+                                locator: 'button[type=submit]'
+                              - type: assertVisible
+                                locator: '.o_home_menu'
+                                locatorHint: 'Odoo home menu visible after login'
+                            evidence:
+                              screenshots: onFail
+                              video: onFail
+                              trace: onFail
+                          changeNote: Initial version
+                          createdAt: '2025-11-20T09:30:00Z'
+                      - id: a1b2c3d4-0002-4000-8000-600000000002
+                        projectId: a1b2c3d4-0001-4000-8000-200000000001
+                        domainId: a1b2c3d4-0001-4000-8000-400000000001
+                        title: Login with invalid password shows error
+                        objective: Verify error message on wrong password
+                        tags: [auth, negative]
+                        status: active
+                        createdAt: '2025-11-20T09:45:00Z'
+                        latestVersion:
+                          id: a1b2c3d4-0002-4000-8000-700000000002
+                          testCaseId: a1b2c3d4-0002-4000-8000-600000000002
+                          versionNo: 1
+                          spec:
+                            kind: ui
+                            preconditions: []
+                            steps:
+                              - type: navigate
+                                url: '${BASE_URL}/web/login'
+                              - type: fill
+                                locator: 'input[name=login]'
+                                value: 'admin@erp.local'
+                              - type: fill
+                                locator: 'input[name=password]'
+                                value: 'wrongpassword'
+                                mask: true
+                              - type: click
+                                locator: 'button[type=submit]'
+                              - type: assertVisible
+                                locator: '.o_error_dialog'
+                                locatorHint: 'Error dialog visible'
+                              - type: assertText
+                                locator: '.o_error_dialog'
+                                assertion: 'Wrong login/password'
+                            evidence:
+                              screenshots: always
+                              video: onFail
+                              trace: onFail
+                          changeNote: Initial version
+                          createdAt: '2025-11-20T09:45:00Z'
+                    nextCursor: null
     post:
       tags: [TestCases]
       summary: Create test case
@@ -617,6 +698,46 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TestCaseDetail'
+              examples:
+                case1:
+                  summary: Admin login test case detail
+                  value:
+                    id: a1b2c3d4-0001-4000-8000-600000000001
+                    projectId: a1b2c3d4-0001-4000-8000-200000000001
+                    domainId: a1b2c3d4-0001-4000-8000-400000000001
+                    title: Admin login with valid credentials
+                    objective: Verify admin can log in successfully
+                    tags: [smoke, auth]
+                    status: active
+                    createdAt: '2025-11-20T09:30:00Z'
+                    latestVersion:
+                      id: a1b2c3d4-0001-4000-8000-700000000001
+                      testCaseId: a1b2c3d4-0001-4000-8000-600000000001
+                      versionNo: 1
+                      spec:
+                        kind: ui
+                        preconditions: ['Admin account exists']
+                        steps:
+                          - type: navigate
+                            url: '${BASE_URL}/web/login'
+                          - type: fill
+                            locator: 'input[name=login]'
+                            value: '${ENV_USERNAME}'
+                          - type: fill
+                            locator: 'input[name=password]'
+                            value: '${ENV_PASSWORD}'
+                            mask: true
+                          - type: click
+                            locator: 'button[type=submit]'
+                          - type: assertVisible
+                            locator: '.o_home_menu'
+                            locatorHint: 'Odoo home menu visible after login'
+                        evidence:
+                          screenshots: onFail
+                          video: onFail
+                          trace: onFail
+                      changeNote: Initial version
+                      createdAt: '2025-11-20T09:30:00Z'
     patch:
       tags: [TestCases]
       summary: Update metadata/labels
@@ -652,6 +773,33 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TestCaseVersionListResponse'
+              examples:
+                case1versions:
+                  summary: Versions for admin login case
+                  value:
+                    data:
+                      - id: a1b2c3d4-0001-4000-8000-700000000001
+                        testCaseId: a1b2c3d4-0001-4000-8000-600000000001
+                        versionNo: 1
+                        spec:
+                          kind: ui
+                          preconditions: ['Admin account exists']
+                          steps:
+                            - type: navigate
+                              url: '${BASE_URL}/web/login'
+                            - type: fill
+                              locator: 'input[name=login]'
+                              value: '${ENV_USERNAME}'
+                            - type: click
+                              locator: 'button[type=submit]'
+                            - type: assertVisible
+                              locator: '.o_home_menu'
+                          evidence:
+                            screenshots: onFail
+                            video: onFail
+                            trace: onFail
+                        changeNote: Initial version
+                        createdAt: '2025-11-20T09:30:00Z'
     post:
       tags: [TestCases]
       summary: Create new version
