@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
@@ -8,14 +9,18 @@ import { logout } from "@/lib/api/auth";
 import { useCurrentUser } from "@/lib/hooks/useCurrentUser";
 
 export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
+  const router = useRouter();
   const qc = useQueryClient();
   const meQuery = useCurrentUser();
 
   const mutation = useMutation({
     mutationFn: logout,
     onSuccess: async () => {
+      // Set a local flag so our proxy won't auto-inject a mock session.
+      document.cookie = "tf_logged_out=1; path=/";
+
       await qc.invalidateQueries({ queryKey: ["auth", "me"] });
-      // AuthGuard will redirect.
+      router.replace("/login");
     },
   });
 

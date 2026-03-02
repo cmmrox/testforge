@@ -21,6 +21,9 @@ export function LoginForm() {
   const mutation = useMutation({
     mutationFn: () => login({ email, password }),
     onSuccess: async () => {
+      // Clear mock logout flag (if any)
+      document.cookie = "tf_logged_out=; Max-Age=0; path=/";
+
       await qc.invalidateQueries({ queryKey: ["auth", "me"] });
       router.replace(next);
     },
