@@ -12,7 +12,15 @@ import {
 export function useDomains(projectId: string | undefined) {
   return useQuery({
     queryKey: ["domains", projectId],
-    queryFn: () => listDomains(projectId!),
+    queryFn: async () => {
+      const api = await listDomains(projectId!);
+      const { overlayLoad, filterByProjectId, mergeById } = await import(
+        "@/lib/overlay/overlayStore"
+      );
+      const overlay = overlayLoad();
+      const overlayDomains = filterByProjectId(overlay.domains, projectId!);
+      return { ...api, data: mergeById(api.data, overlayDomains) };
+    },
     enabled: !!projectId,
   });
 }

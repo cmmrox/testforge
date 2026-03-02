@@ -20,7 +20,15 @@ export function useTestPlans(
 ) {
   return useQuery({
     queryKey: ["test-plans", projectId, filters],
-    queryFn: () => listTestPlans(projectId!, filters),
+    queryFn: async () => {
+      const api = await listTestPlans(projectId!, filters);
+      const { overlayLoad, filterByProjectId, mergeById } = await import(
+        "@/lib/overlay/overlayStore"
+      );
+      const overlay = overlayLoad();
+      const overlayPlans = filterByProjectId(overlay.testPlans, projectId!);
+      return { ...api, data: mergeById(api.data, overlayPlans) };
+    },
     enabled: !!projectId,
   });
 }

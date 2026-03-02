@@ -19,7 +19,15 @@ export function useTestCases(
 ) {
   return useQuery({
     queryKey: ["test-cases", projectId, filters],
-    queryFn: () => listTestCases(projectId!, filters),
+    queryFn: async () => {
+      const api = await listTestCases(projectId!, filters);
+      const { overlayLoad, filterByProjectId, mergeById } = await import(
+        "@/lib/overlay/overlayStore"
+      );
+      const overlay = overlayLoad();
+      const overlayCases = filterByProjectId(overlay.testCases, projectId!);
+      return { ...api, data: mergeById(api.data, overlayCases) };
+    },
     enabled: !!projectId,
   });
 }

@@ -6,6 +6,7 @@ import {
   listRunArtifacts,
   listRunItems,
   listRuns,
+  type TestRun,
   type TestRunCreateRequest,
   type TestRunListResponse,
 } from "@/lib/api/runs";
@@ -17,7 +18,15 @@ export function useRuns(
   return useQuery<TestRunListResponse>({
     queryKey: ["runs", projectId, filters],
     enabled: Boolean(projectId),
-    queryFn: () => listRuns(projectId!, filters),
+    queryFn: async () => {
+      const api = await listRuns(projectId!, filters);
+      const { overlayLoad, filterByProjectId, mergeById } = await import(
+        "@/lib/overlay/overlayStore"
+      );
+      const overlay = overlayLoad();
+      const overlayRuns = filterByProjectId(overlay.runs, projectId!);
+      return { ...api, data: mergeById<TestRun>(api.data, overlayRuns) };
+    },
   });
 }
 

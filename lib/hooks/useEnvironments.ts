@@ -15,7 +15,15 @@ import {
 export function useEnvironments(projectId: string | undefined) {
   return useQuery({
     queryKey: ["environments", projectId],
-    queryFn: () => listEnvironments(projectId!),
+    queryFn: async () => {
+      const api = await listEnvironments(projectId!);
+      const { overlayLoad, filterByProjectId, mergeById } = await import(
+        "@/lib/overlay/overlayStore"
+      );
+      const overlay = overlayLoad();
+      const overlayEnvs = filterByProjectId(overlay.environments, projectId!);
+      return { ...api, data: mergeById(api.data, overlayEnvs) };
+    },
     enabled: !!projectId,
   });
 }

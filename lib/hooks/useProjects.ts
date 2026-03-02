@@ -13,7 +13,15 @@ import {
 export function useProjects() {
   return useQuery({
     queryKey: ["projects"],
-    queryFn: () => listProjects({ limit: 20 }),
+    queryFn: async () => {
+      const api = await listProjects({ limit: 20 });
+      const { overlayLoad, mergeById } = await import("@/lib/overlay/overlayStore");
+      const overlay = overlayLoad();
+      return {
+        ...api,
+        data: mergeById(api.data, overlay.projects),
+      };
+    },
   });
 }
 
