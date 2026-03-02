@@ -222,7 +222,6 @@ paths:
                         projectId: a1b2c3d4-0001-4000-8000-200000000001
                         name: Production
                         baseUrl: https://erp.codegen.net
-                        loginRecipe: null
                         createdAt: '2025-11-16T10:00:00Z'
     post:
       tags: [Environments]
