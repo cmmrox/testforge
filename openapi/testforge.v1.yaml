@@ -853,6 +853,37 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TestRunListResponse'
+              examples:
+                odoo:
+                  summary: Runs for Odoo ERP
+                  value:
+                    data:
+                      - id: a1b2c3d4-0001-4000-8000-800000000001
+                        projectId: a1b2c3d4-0001-4000-8000-200000000001
+                        environmentId: a1b2c3d4-0001-4000-8000-300000000001
+                        triggeredBy: a1b2c3d4-0001-4000-8000-100000000001
+                        status: passed
+                        startedAt: '2026-01-10T08:00:00Z'
+                        finishedAt: '2026-01-10T08:04:32Z'
+                        durationMs: 272000
+                        summary:
+                          total: 2
+                          passed: 2
+                          failed: 0
+                        createdAt: '2026-01-10T07:59:55Z'
+                      - id: a1b2c3d4-0002-4000-8000-800000000002
+                        projectId: a1b2c3d4-0001-4000-8000-200000000001
+                        environmentId: a1b2c3d4-0001-4000-8000-300000000001
+                        triggeredBy: a1b2c3d4-0001-4000-8000-100000000001
+                        status: failed
+                        startedAt: '2026-01-15T09:30:00Z'
+                        finishedAt: '2026-01-15T09:33:12Z'
+                        durationMs: 192000
+                        summary:
+                          total: 2
+                          passed: 1
+                          failed: 1
+                        createdAt: '2026-01-15T09:29:50Z'
     post:
       tags: [Runs]
       summary: Trigger run
@@ -869,6 +900,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TestRun'
+              examples:
+                queued:
+                  summary: Newly queued run
+                  value:
+                    id: a1b2c3d4-0099-4000-8000-800000000099
+                    projectId: a1b2c3d4-0001-4000-8000-200000000001
+                    environmentId: a1b2c3d4-0001-4000-8000-300000000001
+                    triggeredBy: a1b2c3d4-0001-4000-8000-100000000001
+                    status: queued
+                    startedAt: null
+                    finishedAt: null
+                    durationMs: null
+                    summary: {}
+                    createdAt: '2026-02-01T10:00:00Z'
   /runs/{testRunId}:
     parameters:
       - $ref: '#/components/parameters/TestRunId'
@@ -882,6 +927,38 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TestRunDetail'
+              examples:
+                failed:
+                  summary: Failed run detail
+                  value:
+                    id: a1b2c3d4-0002-4000-8000-800000000002
+                    projectId: a1b2c3d4-0001-4000-8000-200000000001
+                    environmentId: a1b2c3d4-0001-4000-8000-300000000001
+                    triggeredBy: a1b2c3d4-0001-4000-8000-100000000001
+                    status: failed
+                    startedAt: '2026-01-15T09:30:00Z'
+                    finishedAt: '2026-01-15T09:33:12Z'
+                    durationMs: 192000
+                    summary:
+                      total: 2
+                      passed: 1
+                      failed: 1
+                    createdAt: '2026-01-15T09:29:50Z'
+                    items:
+                      - id: a1b2c3d4-0003-4000-8000-900000000003
+                        testCaseVersionId: a1b2c3d4-0001-4000-8000-700000000001
+                        status: passed
+                        startedAt: '2026-01-15T09:30:05Z'
+                        finishedAt: '2026-01-15T09:31:50Z'
+                        durationMs: 105000
+                      - id: a1b2c3d4-0004-4000-8000-900000000004
+                        testCaseVersionId: a1b2c3d4-0002-4000-8000-700000000002
+                        status: failed
+                        startedAt: '2026-01-15T09:31:55Z'
+                        finishedAt: '2026-01-15T09:33:10Z'
+                        durationMs: 75000
+                        failureSummary: assertVisible failed: .o_error_dialog not found within 5000ms
+                    artifacts: []
     post:
       tags: [Runs]
       summary: Update run (internal worker hook)
@@ -912,6 +989,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TestRunItemListResponse'
+              examples:
+                failedItems:
+                  summary: Run items for failed run
+                  value:
+                    data:
+                      - id: a1b2c3d4-0003-4000-8000-900000000003
+                        testCaseVersionId: a1b2c3d4-0001-4000-8000-700000000001
+                        status: passed
+                        startedAt: '2026-01-15T09:30:05Z'
+                        finishedAt: '2026-01-15T09:31:50Z'
+                        durationMs: 105000
+                      - id: a1b2c3d4-0004-4000-8000-900000000004
+                        testCaseVersionId: a1b2c3d4-0002-4000-8000-700000000002
+                        status: failed
+                        startedAt: '2026-01-15T09:31:55Z'
+                        finishedAt: '2026-01-15T09:33:10Z'
+                        durationMs: 75000
+                        failureSummary: assertVisible failed: .o_error_dialog not found within 5000ms
   /runs/{testRunId}/artifacts:
     get:
       tags: [Artifacts]
@@ -925,6 +1020,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ArtifactListResponse'
+              examples:
+                empty:
+                  summary: No artifacts
+                  value:
+                    data: []
   /artifacts/{artifactId}:
     parameters:
       - $ref: '#/components/parameters/ArtifactId'

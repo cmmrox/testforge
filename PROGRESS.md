@@ -28,7 +28,7 @@
 ✅ Done
 
 ## Stage 10 — Runs + Reporting + Artifacts
-⏳ Not Started
+✅ Done
 
 ## Stage 11 — Dashboard + Settings + Audit logs
 ⏳ Not Started

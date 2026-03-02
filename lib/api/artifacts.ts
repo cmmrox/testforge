@@ -19,3 +19,7 @@ export type ArtifactListResponse = {
 export async function listArtifactsForRun(runId: string) {
   return apiFetch<ArtifactListResponse>(`/runs/${runId}/artifacts`);
 }
+
+export async function getArtifact(artifactId: string) {
+  return apiFetch<Artifact>(`/artifacts/${artifactId}`);
+}
