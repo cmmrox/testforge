@@ -668,7 +668,6 @@ paths:
                               trace: onFail
                           changeNote: Initial version
                           createdAt: '2025-11-20T09:45:00Z'
-                    nextCursor: null
     post:
       tags: [TestCases]
       summary: Create test case
