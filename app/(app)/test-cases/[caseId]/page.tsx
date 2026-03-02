@@ -48,11 +48,12 @@ export default function CaseDetailPage() {
 
   // Once data loads, initialize editor with latest version
   React.useEffect(() => {
-    if (testCase?.latestVersion?.spec) {
-      setEditorSpec(testCase.latestVersion.spec);
-      setViewingVersionId(testCase.latestVersion.id);
+    const latest = testCase?.latestVersion;
+    if (latest?.spec) {
+      setEditorSpec(latest.spec);
+      setViewingVersionId(latest.id);
     }
-  }, [testCase?.latestVersion?.id]);
+  }, [testCase?.latestVersion]);
 
   function handleSelectVersion(v: TestCaseVersion) {
     setEditorSpec(v.spec);

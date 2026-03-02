@@ -36,7 +36,7 @@ export function EditCaseDialog({ open, onClose, testCase }: Props) {
   const domainsQuery = useDomains(testCase.projectId);
   const domains = domainsQuery.data?.data ?? [];
 
-  // Reset when the case changes (intentionally only on id change)
+  // Reset when the case changes
   React.useEffect(() => {
     setValues({
       title: testCase.title,
@@ -44,7 +44,7 @@ export function EditCaseDialog({ open, onClose, testCase }: Props) {
       domainId: testCase.domainId ?? "",
       tags: (testCase.tags ?? []).join(", "),
     });
-  }, [testCase.id]);
+  }, [testCase.id, testCase.title, testCase.objective, testCase.domainId, testCase.tags]);
 
   function handleClose() {
     mutation.reset();
