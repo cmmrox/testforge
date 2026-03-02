@@ -38,7 +38,7 @@ async function startApp() {
   await startPrism();
 
   const app = express();
-  app.use(cors());
+  app.use(cors({ origin: true, credentials: true }));
   app.use(morgan('dev'));
 
   // Serve raw spec
@@ -49,14 +49,29 @@ async function startApp() {
 
   // Swagger UI
   const specDoc = YAML.parse(fs.readFileSync(SPEC_PATH, 'utf8'));
-  app.use('/docs', swaggerUi.serve, swaggerUi.setup(specDoc));
+  app.use(
+    '/docs',
+    swaggerUi.serve,
+    swaggerUi.setup(specDoc, {
+      swaggerOptions: {
+        // Make Swagger UI include cookies on same-origin requests.
+        withCredentials: true,
+      },
+    })
+  );
 
-  // Auto cookie for mock auth (skip docs/spec routes)
+  // Ensure mock auth cookie exists for ALL API calls (except docs/spec routes).
+  // Browsers can't set the Cookie header manually from Swagger UI, and some requests
+  // may carry other cookies. If `testforge_session` is missing, inject it.
   app.use((req, _res, next) => {
-    if (!req.headers.cookie && !req.path.startsWith('/docs') && req.path !== '/openapi.yaml') {
-      req.headers.cookie = 'testforge_session=mock';
+    if (req.path.startsWith('/docs') || req.path === '/openapi.yaml') return next();
+
+    const cookie = req.headers.cookie ?? '';
+    if (!cookie.includes('testforge_session=')) {
+      req.headers.cookie = cookie.trim().length > 0 ? `${cookie}; testforge_session=mock` : 'testforge_session=mock';
     }
-    next();
+
+    return next();
   });
 
   // Proxy everything else to Prism
