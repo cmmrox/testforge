@@ -25,6 +25,9 @@ export type ProjectCreateRequest = {
   name: string;
   description?: string;
   tags?: string[];
+  // Wizard support (OpenAPI allows these)
+  defaultEnvironment?: unknown;
+  domains?: Array<{ name: string; color: string }>;
 };
 
 export type ProjectUpdateRequest = {

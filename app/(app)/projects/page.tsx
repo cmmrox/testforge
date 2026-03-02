@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { ArchiveConfirmDialog } from "@/components/projects/archive-confirm-dialog";
-import { CreateProjectDialog } from "@/components/projects/create-project-dialog";
+import { CreateProjectWizardDialog } from "@/components/projects/create-project-wizard-dialog";
 import { EditProjectDialog } from "@/components/projects/edit-project-dialog";
 import { ProjectCard } from "@/components/projects/project-card";
 import { type ProjectDetail } from "@/lib/api/projects";
@@ -128,7 +128,7 @@ export default function ProjectsPage() {
       )}
 
       {/* Dialogs */}
-      <CreateProjectDialog open={showCreate} onClose={() => setShowCreate(false)} />
+      <CreateProjectWizardDialog open={showCreate} onClose={() => setShowCreate(false)} />
 
       {editTarget ? (
         <EditProjectDialog
