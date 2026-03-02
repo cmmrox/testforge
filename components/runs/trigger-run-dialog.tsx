@@ -22,10 +22,12 @@ export function TriggerRunDialog({
   open,
   onClose,
   projectId,
+  initialEnvironmentId,
 }: {
   open: boolean;
   onClose: () => void;
   projectId: string;
+  initialEnvironmentId?: string;
 }) {
   const envQuery = useEnvironments(projectId);
   const plansQuery = useTestPlans(projectId);
@@ -46,8 +48,12 @@ export function TriggerRunDialog({
     setRetries(0);
     setEvidence(DEFAULT_EVIDENCE);
 
-    const firstEnv = envQuery.data?.data?.[0];
-    setEnvironmentId(firstEnv?.id ?? "");
+    const envs = envQuery.data?.data ?? [];
+    const preferred = initialEnvironmentId
+      ? envs.find((e) => e.id === initialEnvironmentId)
+      : undefined;
+    const firstEnv = envs[0];
+    setEnvironmentId(preferred?.id ?? firstEnv?.id ?? "");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 

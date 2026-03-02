@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -9,6 +10,7 @@ import { logout } from "@/lib/api/auth";
 import { useCurrentUser } from "@/lib/hooks/useCurrentUser";
 import { useProjects } from "@/lib/hooks/useProjects";
 import { useSelectedProject } from "@/lib/context/project-context";
+import { TriggerRunDialog } from "@/components/runs/trigger-run-dialog";
 import { useEnvironments } from "@/lib/hooks/useEnvironments";
 import { useSelectedEnvironment } from "@/lib/context/environment-context";
 
@@ -56,6 +58,8 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
   const envsQuery = useEnvironments(selectedProject?.id);
   const { selectedEnvironment, setSelectedEnvironment } = useSelectedEnvironment();
 
+  const [showRun, setShowRun] = React.useState(false);
+
   const mutation = useMutation({
     mutationFn: logout,
     onSuccess: async () => {
@@ -68,7 +72,8 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
   });
 
   return (
-    <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-slate-200 bg-white px-4">
+    <>
+      <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-slate-200 bg-white px-4">
       <div className="flex items-center gap-2">
         <Button variant="ghost" size="sm" onClick={onMenuClick} className="md:hidden">
           Menu
@@ -104,8 +109,9 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
         </Badge>
         <Button
           size="sm"
-          variant="secondary"
-          onClick={() => router.push("/runs")}
+          variant="primary"
+          onClick={() => setShowRun(true)}
+          disabled={!selectedProject || !selectedEnvironment}
         >
           Run
         </Button>
@@ -119,5 +125,15 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
         </Button>
       </div>
     </header>
+
+      {selectedProject && selectedEnvironment ? (
+        <TriggerRunDialog
+          open={showRun}
+          onClose={() => setShowRun(false)}
+          projectId={selectedProject.id}
+          initialEnvironmentId={selectedEnvironment.id}
+        />
+      ) : null}
+    </>
   );
 }

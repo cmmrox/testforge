@@ -112,6 +112,7 @@ export default function RunsPage() {
         open={showTrigger}
         onClose={() => setShowTrigger(false)}
         projectId={selectedProject.id}
+        initialEnvironmentId={environmentId || undefined}
       />
     </div>
   );
