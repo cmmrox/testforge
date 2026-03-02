@@ -118,8 +118,6 @@ paths:
                         environmentCount: 1
                         testPlanCount: 1
                         testCaseCount: 1
-                        lastRun: null
-                    nextCursor: null
     post:
       tags: [Projects]
       summary: Create project
