@@ -7,10 +7,10 @@ UI-first implementation for the TestForge QA automation platform.
 - (Recommended) Docker for running the mock server container
 
 ## Environment
-Copy `.env.example` → `.env.local` and adjust as needed:
+Copy `.env.example` → `.env` (or `.env.local`) and adjust as needed:
 
 ```bash
-cp .env.example .env.local
+cp .env.example .env
 ```
 
 - `NEXT_PUBLIC_API_BASE_URL`:
@@ -21,12 +21,13 @@ cp .env.example .env.local
 ## Run the mock API + Swagger UI (OpenAPI → Prism)
 
 ### Option A: Docker (recommended)
-From the OpenClaw workspace root (so the build context is correct):
+From the TestForge repo root:
 
 ```bash
-cd /home/ec2-user/.openclaw/workspace
-docker build -f Projects/testforge/mock-server/Dockerfile -t testforge-mock:latest Projects/testforge
-docker run --rm -p 8081:8080 testforge-mock:latest
+cd /home/ec2-user/Projects/testforge
+
+docker build -t testforge-mock:latest -f mock-server/Dockerfile .
+docker run --rm -p 8081:8081 testforge-mock:latest
 ```
 
 - Swagger UI: http://localhost:8081/docs
