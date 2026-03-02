@@ -19,7 +19,12 @@ export function LoginForm() {
   const [password, setPassword] = React.useState("password");
 
   const mutation = useMutation({
-    mutationFn: () => login({ email, password }),
+    mutationFn: () => {
+      // Ensure proxy can inject the mock session for the login call.
+      // (Prism enforces cookie auth globally in the current OpenAPI.)
+      document.cookie = "tf_logged_out=; Max-Age=0; path=/";
+      return login({ email, password });
+    },
     onSuccess: async () => {
       // Clear mock logout flag (if any)
       document.cookie = "tf_logged_out=; Max-Age=0; path=/";

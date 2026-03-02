@@ -21,7 +21,13 @@ async function handler(req: NextRequest, ctx: { params: Promise<{ path: string[]
   // browser, the cookie header may exist (Next.js / other cookies) but not include
   // `testforge_session`, which would cause Prism to return 401.
   const cookie = headers.get("cookie") ?? "";
-  const loggedOut = cookie.includes("tf_logged_out=1");
+
+  // Special-case: in our Prism mock setup, security is defined globally in the OpenAPI,
+  // so even /auth/login may require cookie auth. Allow the proxy to inject the mock
+  // session for login calls so the UI can proceed.
+  const isAuthLogin = path.length >= 2 && path[0] === "auth" && path[1] === "login";
+
+  const loggedOut = !isAuthLogin && cookie.includes("tf_logged_out=1");
 
   // If the user explicitly logged out (tf_logged_out=1), do NOT auto-inject a mock session.
   // This allows logout/login flows to work in mock mode.

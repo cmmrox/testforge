@@ -13,7 +13,7 @@
 ✅ Done
 
 ## Stage 5 — Projects module
-⏳ Not Started
+✅ Done
 
 ## Stage 6 — Environments module
 ⏳ Not Started

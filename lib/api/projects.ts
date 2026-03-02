@@ -21,6 +21,19 @@ export type ProjectListResponse = {
   nextCursor?: string;
 };
 
+export type ProjectCreateRequest = {
+  name: string;
+  description?: string;
+  tags?: string[];
+};
+
+export type ProjectUpdateRequest = {
+  name?: string;
+  description?: string;
+  tags?: string[];
+  archived?: boolean;
+};
+
 export async function listProjects(params?: { cursor?: string; limit?: number }) {
   const qs = new URLSearchParams();
   if (params?.cursor) qs.set("cursor", params.cursor);
@@ -28,4 +41,20 @@ export async function listProjects(params?: { cursor?: string; limit?: number })
 
   const suffix = qs.toString() ? `?${qs.toString()}` : "";
   return apiFetch<ProjectListResponse>(`/projects${suffix}`);
+}
+
+export async function getProject(id: string): Promise<ProjectDetail> {
+  return apiFetch<ProjectDetail>(`/projects/${id}`);
+}
+
+export async function createProject(body: ProjectCreateRequest): Promise<Project> {
+  return apiFetch<Project>("/projects", { method: "POST", body });
+}
+
+export async function updateProject(id: string, body: ProjectUpdateRequest): Promise<Project> {
+  return apiFetch<Project>(`/projects/${id}`, { method: "PATCH", body });
+}
+
+export async function archiveProject(id: string): Promise<void> {
+  return apiFetch<void>(`/projects/${id}`, { method: "DELETE" });
 }
