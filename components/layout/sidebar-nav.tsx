@@ -18,6 +18,7 @@ const nav: NavItem[] = [
   { href: "/test-plans", label: "Test Plans" },
   { href: "/test-cases", label: "Test Cases" },
   { href: "/runs", label: "Runs" },
+  { href: "/audit", label: "Audit" },
   { href: "/settings", label: "Settings" },
 ];
 

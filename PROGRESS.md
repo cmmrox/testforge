@@ -31,7 +31,7 @@
 ✅ Done
 
 ## Stage 11 — Dashboard + Settings + Audit logs
-⏳ Not Started
+✅ Done
 
 ## Stage 12 — Quality (tests, a11y, docs)
 ⏳ Not Started
