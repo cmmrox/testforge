@@ -9,6 +9,7 @@ import { logout } from "@/lib/api/auth";
 import { useCurrentUser } from "@/lib/hooks/useCurrentUser";
 import { useProjects } from "@/lib/hooks/useProjects";
 import { useSelectedProject } from "@/lib/context/project-context";
+import { useEnvironments } from "@/lib/hooks/useEnvironments";
 
 function ProjectSwitcher() {
   const { selectedProject, setSelectedProject } = useSelectedProject();
@@ -50,6 +51,9 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
   const router = useRouter();
   const qc = useQueryClient();
   const meQuery = useCurrentUser();
+  const { selectedProject } = useSelectedProject();
+  const envsQuery = useEnvironments(selectedProject?.id);
+  const firstEnv = envsQuery.data?.data?.[0];
 
   const mutation = useMutation({
     mutationFn: logout,
@@ -73,7 +77,7 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
 
       <div className="flex items-center gap-2">
         <ProjectSwitcher />
-        <Badge>Env: —</Badge>
+        <Badge>Env: {firstEnv ? firstEnv.name : "—"}</Badge>
         <Badge>
           {meQuery.data ? `${meQuery.data.email} (${meQuery.data.role})` : "User: —"}
         </Badge>

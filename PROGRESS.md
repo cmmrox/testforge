@@ -16,7 +16,7 @@
 ✅ Done
 
 ## Stage 6 — Environments module
-⏳ Not Started
+✅ Done
 
 ## Stage 7 — Domains/Areas module
 ⏳ Not Started

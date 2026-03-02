@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EditProjectDialog } from "@/components/projects/edit-project-dialog";
 import { useProject } from "@/lib/hooks/useProjects";
+import { useEnvironments } from "@/lib/hooks/useEnvironments";
 
 function StatCard({ label, value }: { label: string; value: number }) {
   return (
@@ -65,6 +66,9 @@ export default function ProjectDetailPage() {
   }
 
   const project = query.data;
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const envsQuery = useEnvironments(project.id);
+  const envs = (envsQuery.data?.data ?? []).slice(0, 3);
 
   return (
     <div className="space-y-6">
@@ -112,6 +116,39 @@ export default function ProjectDetailPage() {
         <StatCard label="Environments" value={project.environmentCount ?? 0} />
         <StatCard label="Test Plans" value={project.testPlanCount ?? 0} />
         <StatCard label="Test Cases" value={project.testCaseCount ?? 0} />
+      </div>
+
+      {/* Environments */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-base font-semibold text-slate-900">Environments</h2>
+          <Link
+            href="/environments"
+            className="text-sm text-slate-500 hover:text-slate-900 underline"
+          >
+            View all environments →
+          </Link>
+        </div>
+        {envsQuery.isLoading && (
+          <div className="h-10 w-full animate-pulse rounded-md bg-slate-100" />
+        )}
+        {!envsQuery.isLoading && envs.length === 0 && (
+          <p className="text-sm text-slate-500">No environments yet.</p>
+        )}
+        {envs.map((env) => (
+          <div
+            key={env.id}
+            className="flex items-center justify-between rounded-md border border-slate-200 bg-white px-4 py-2"
+          >
+            <div className="flex flex-col gap-0.5 min-w-0">
+              <span className="text-sm font-medium text-slate-900">{env.name}</span>
+              <code className="truncate text-xs text-slate-500 font-mono">{env.baseUrl}</code>
+            </div>
+            {env.loginRecipe && (
+              <Badge variant="success" className="shrink-0">Login Recipe ✓</Badge>
+            )}
+          </div>
+        ))}
       </div>
 
       {/* Last run */}
