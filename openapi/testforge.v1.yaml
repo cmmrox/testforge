@@ -957,7 +957,7 @@ paths:
                         startedAt: '2026-01-15T09:31:55Z'
                         finishedAt: '2026-01-15T09:33:10Z'
                         durationMs: 75000
-                        failureSummary: assertVisible failed: .o_error_dialog not found within 5000ms
+                        failureSummary: 'assertVisible failed: .o_error_dialog not found within 5000ms'
                     artifacts: []
     post:
       tags: [Runs]
@@ -1006,7 +1006,7 @@ paths:
                         startedAt: '2026-01-15T09:31:55Z'
                         finishedAt: '2026-01-15T09:33:10Z'
                         durationMs: 75000
-                        failureSummary: assertVisible failed: .o_error_dialog not found within 5000ms
+                        failureSummary: 'assertVisible failed: .o_error_dialog not found within 5000ms'
   /runs/{testRunId}/artifacts:
     get:
       tags: [Artifacts]
