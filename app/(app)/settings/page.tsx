@@ -37,6 +37,31 @@ export default function SettingsPage() {
 
       <Card>
         <CardHeader>
+          <CardTitle>Demo Data</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2 text-sm text-slate-600">
+          <button
+            type="button"
+            className="w-fit rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-800 hover:bg-red-100"
+            onClick={() => {
+              if (!confirm("Reset demo data? This clears locally stored overlay data.")) return;
+              // Lazy import to keep settings lightweight
+              import("@/lib/overlay/overlayStore").then(({ overlayReset }) => {
+                overlayReset();
+                window.location.reload();
+              });
+            }}
+          >
+            Reset demo data
+          </button>
+          <p className="text-xs text-slate-400">
+            Clears localStorage overlay (used to simulate persistence with Prism examples).
+          </p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
           <CardTitle>Developer</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 text-sm text-slate-600">

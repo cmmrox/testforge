@@ -10,6 +10,7 @@ import { useCurrentUser } from "@/lib/hooks/useCurrentUser";
 import { useProjects } from "@/lib/hooks/useProjects";
 import { useSelectedProject } from "@/lib/context/project-context";
 import { useEnvironments } from "@/lib/hooks/useEnvironments";
+import { useSelectedEnvironment } from "@/lib/context/environment-context";
 
 function ProjectSwitcher() {
   const { selectedProject, setSelectedProject } = useSelectedProject();
@@ -53,7 +54,7 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
   const meQuery = useCurrentUser();
   const { selectedProject } = useSelectedProject();
   const envsQuery = useEnvironments(selectedProject?.id);
-  const firstEnv = envsQuery.data?.data?.[0];
+  const { selectedEnvironment, setSelectedEnvironment } = useSelectedEnvironment();
 
   const mutation = useMutation({
     mutationFn: logout,
@@ -77,11 +78,35 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
 
       <div className="flex items-center gap-2">
         <ProjectSwitcher />
-        <Badge>Env: {firstEnv ? firstEnv.name : "—"}</Badge>
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs text-slate-500">Env:</span>
+          <select
+            value={selectedEnvironment?.id ?? ""}
+            onChange={(e) => {
+              const id = e.target.value;
+              const found = (envsQuery.data?.data ?? []).find((x) => x.id === id) ?? null;
+              setSelectedEnvironment(found);
+            }}
+            className="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-400"
+            aria-label="Select environment"
+            disabled={!selectedProject || envsQuery.isLoading}
+          >
+            <option value="">Select env…</option>
+            {(envsQuery.data?.data ?? []).map((e) => (
+              <option key={e.id} value={e.id}>
+                {e.name}
+              </option>
+            ))}
+          </select>
+        </div>
         <Badge>
           {meQuery.data ? `${meQuery.data.email} (${meQuery.data.role})` : "User: —"}
         </Badge>
-        <Button size="sm" variant="secondary" disabled>
+        <Button
+          size="sm"
+          variant="secondary"
+          onClick={() => router.push("/runs")}
+        >
           Run
         </Button>
         <Button
