@@ -10,7 +10,7 @@
 ✅ Done
 
 ## Stage 4 — Authentication + route protection + RBAC gating
-⏳ Not Started
+✅ Done
 
 ## Stage 5 — Projects module
 ⏳ Not Started
