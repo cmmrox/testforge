@@ -4,7 +4,7 @@
 ✅ Done
 
 ## Stage 2 — UI foundation (layout + navigation + primitives)
-⏳ Not Started
+✅ Done
 
 ## Stage 3 — API client layer (mock-first)
 ⏳ Not Started
