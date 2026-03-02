@@ -22,7 +22,7 @@
 ✅ Done
 
 ## Stage 8 — Test Plans (incl. agent generation UI)
-⏳ Not Started
+✅ Done
 
 ## Stage 9 — Test Cases + Versioning + Step Editor
 ⏳ Not Started
