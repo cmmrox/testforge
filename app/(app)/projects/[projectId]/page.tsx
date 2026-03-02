@@ -10,6 +10,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EditProjectDialog } from "@/components/projects/edit-project-dialog";
 import { useProject } from "@/lib/hooks/useProjects";
 import { useEnvironments } from "@/lib/hooks/useEnvironments";
+import { useDomains } from "@/lib/hooks/useDomains";
+import { DomainChip } from "@/components/domains/domain-chip";
 
 function StatCard({ label, value }: { label: string; value: number }) {
   return (
@@ -69,6 +71,10 @@ export default function ProjectDetailPage() {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const envsQuery = useEnvironments(project.id);
   const envs = (envsQuery.data?.data ?? []).slice(0, 3);
+
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const domainsQuery = useDomains(project.id);
+  const domains = domainsQuery.data?.data ?? [];
 
   return (
     <div className="space-y-6">
@@ -149,6 +155,32 @@ export default function ProjectDetailPage() {
             )}
           </div>
         ))}
+      </div>
+
+      {/* Domains */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-base font-semibold text-slate-900">Domains</h2>
+          <Link
+            href="/domains"
+            className="text-sm text-slate-500 hover:text-slate-900 underline"
+          >
+            Manage domains →
+          </Link>
+        </div>
+        {domainsQuery.isLoading && (
+          <div className="h-8 w-full animate-pulse rounded-md bg-slate-100" />
+        )}
+        {!domainsQuery.isLoading && domains.length === 0 && (
+          <p className="text-sm text-slate-500">No domains yet.</p>
+        )}
+        {domains.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {domains.map((domain) => (
+              <DomainChip key={domain.id} domain={domain} size="sm" />
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Last run */}

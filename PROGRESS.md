@@ -19,7 +19,7 @@
 ✅ Done
 
 ## Stage 7 — Domains/Areas module
-⏳ Not Started
+✅ Done
 
 ## Stage 8 — Test Plans (incl. agent generation UI)
 ⏳ Not Started
