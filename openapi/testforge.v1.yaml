@@ -67,6 +67,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
+              examples:
+                admin:
+                  summary: Admin user
+                  value:
+                    id: a1b2c3d4-0001-4000-8000-100000000001
+                    email: admin@testforge.local
+                    role: admin
+                    createdAt: '2025-11-01T08:00:00Z'
         '401':
           $ref: '#/components/responses/Unauthorized'
   /projects:
@@ -83,6 +91,35 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProjectListResponse'
+              examples:
+                seed:
+                  summary: Seeded realistic projects
+                  value:
+                    data:
+                      - id: a1b2c3d4-0001-4000-8000-200000000001
+                        name: Odoo ERP
+                        description: End-to-end UI tests for the Odoo 17 ERP deployment
+                        tags: [erp, odoo, regression]
+                        archived: false
+                        createdAt: '2025-11-15T09:00:00Z'
+                        environmentCount: 2
+                        testPlanCount: 3
+                        testCaseCount: 4
+                        lastRun:
+                          id: a1b2c3d4-0002-4000-8000-800000000002
+                          status: failed
+                          finishedAt: '2026-01-15T09:33:12Z'
+                      - id: a1b2c3d4-0002-4000-8000-200000000002
+                        name: Customer Portal
+                        description: Automated tests for the customer self-service portal
+                        tags: [portal, customer-facing]
+                        archived: false
+                        createdAt: '2025-12-01T10:00:00Z'
+                        environmentCount: 1
+                        testPlanCount: 1
+                        testCaseCount: 1
+                        lastRun: null
+                    nextCursor: null
     post:
       tags: [Projects]
       summary: Create project
@@ -113,6 +150,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProjectDetail'
+              examples:
+                odoo:
+                  summary: Odoo ERP project detail
+                  value:
+                    id: a1b2c3d4-0001-4000-8000-200000000001
+                    name: Odoo ERP
+                    description: End-to-end UI tests for the Odoo 17 ERP deployment
+                    tags: [erp, odoo, regression]
+                    archived: false
+                    createdAt: '2025-11-15T09:00:00Z'
+                    environmentCount: 2
+                    testPlanCount: 3
+                    testCaseCount: 4
+                    lastRun:
+                      id: a1b2c3d4-0002-4000-8000-800000000002
+                      status: failed
+                      finishedAt: '2026-01-15T09:33:12Z'
     patch:
       tags: [Projects]
       summary: Update project metadata
@@ -149,6 +203,29 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/EnvironmentListResponse'
+              examples:
+                odoo:
+                  summary: Environments for Odoo ERP
+                  value:
+                    data:
+                      - id: a1b2c3d4-0001-4000-8000-300000000001
+                        projectId: a1b2c3d4-0001-4000-8000-200000000001
+                        name: Staging
+                        baseUrl: https://staging-erp.codegen.net
+                        loginRecipe:
+                          loginUrl: https://staging-erp.codegen.net/web/login
+                          locatorUsername: input[name=login]
+                          locatorPassword: input[name=password]
+                          locatorSubmit: button[type=submit]
+                          locatorPostLoginAssert: .o_home_menu
+                          totpEnabled: false
+                        createdAt: '2025-11-16T09:00:00Z'
+                      - id: a1b2c3d4-0002-4000-8000-300000000002
+                        projectId: a1b2c3d4-0001-4000-8000-200000000001
+                        name: Production
+                        baseUrl: https://erp.codegen.net
+                        loginRecipe: null
+                        createdAt: '2025-11-16T10:00:00Z'
     post:
       tags: [Environments]
       summary: Create environment
@@ -227,6 +304,31 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DomainListResponse'
+              examples:
+                odoo:
+                  summary: Domains for Odoo ERP
+                  value:
+                    data:
+                      - id: a1b2c3d4-0001-4000-8000-400000000001
+                        projectId: a1b2c3d4-0001-4000-8000-200000000001
+                        name: Authentication
+                        color: '#3b82f6'
+                        createdAt: '2025-11-16T11:00:00Z'
+                      - id: a1b2c3d4-0002-4000-8000-400000000002
+                        projectId: a1b2c3d4-0001-4000-8000-200000000001
+                        name: Sales
+                        color: '#22c55e'
+                        createdAt: '2025-11-16T11:05:00Z'
+                      - id: a1b2c3d4-0003-4000-8000-400000000003
+                        projectId: a1b2c3d4-0001-4000-8000-200000000001
+                        name: Inventory
+                        color: '#f97316'
+                        createdAt: '2025-11-16T11:10:00Z'
+                      - id: a1b2c3d4-0004-4000-8000-400000000004
+                        projectId: a1b2c3d4-0001-4000-8000-200000000001
+                        name: Accounting
+                        color: '#a855f7'
+                        createdAt: '2025-11-16T11:15:00Z'
     post:
       tags: [Domains]
       summary: Create domain
