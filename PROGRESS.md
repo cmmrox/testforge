@@ -7,7 +7,7 @@
 ✅ Done
 
 ## Stage 3 — API client layer (mock-first)
-⏳ Not Started
+✅ Done
 
 ## Stage 4 — Authentication + route protection + RBAC gating
 ⏳ Not Started
