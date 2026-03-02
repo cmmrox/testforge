@@ -13,7 +13,10 @@ Copy `.env.example` → `.env.local` and adjust as needed:
 cp .env.example .env.local
 ```
 
-- `NEXT_PUBLIC_API_BASE_URL` should point to the mock server during UI-first development.
+- `NEXT_PUBLIC_API_BASE_URL`:
+  - leave empty to use the built-in **same-origin proxy** (recommended when opening the UI via VM public IP)
+  - or set it to call an API directly from the browser
+- `MOCK_API_BASE_URL` is the server-side proxy target (defaults to `http://127.0.0.1:8081`).
 
 ## Run the mock API + Swagger UI (OpenAPI → Prism)
 

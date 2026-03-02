@@ -1,5 +1,15 @@
 import { getPublicApiBaseUrl } from "@/lib/env";
 
+function toProxyPath(path: string) {
+  // If caller passes an absolute URL, leave it as-is.
+  if (path.startsWith("http://") || path.startsWith("https://")) return path;
+
+  // Always route through same-origin proxy so the UI works when accessed via VM public IP.
+  // Example: /projects -> /api/proxy/projects
+  const p = path.startsWith("/") ? path : `/${path}`;
+  return `/api/proxy${p}`;
+}
+
 export type ApiError = {
   status: number;
   message: string;
@@ -30,7 +40,11 @@ async function readResponseBodySafe(res: Response) {
 
 export async function apiFetch<T>(path: string, options: ApiFetchOptions = {}): Promise<T> {
   const baseUrl = (options.baseUrl ?? getPublicApiBaseUrl()).replace(/\/$/, "");
-  const url = path.startsWith("http") ? path : `${baseUrl}${path.startsWith("/") ? "" : "/"}${path}`;
+
+  // If baseUrl is provided (rare), use it. Otherwise use same-origin proxy.
+  const url = baseUrl
+    ? `${baseUrl}${path.startsWith("/") ? "" : "/"}${path}`
+    : toProxyPath(path);
 
   const res = await fetch(url, {
     ...options,
