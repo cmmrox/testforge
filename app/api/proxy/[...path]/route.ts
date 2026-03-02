@@ -17,6 +17,15 @@ async function handler(req: NextRequest, ctx: { params: Promise<{ path: string[]
   // Let fetch set correct host.
   headers.delete("host");
 
+  // Prism mock enforces cookie auth (`testforge_session`). When requests come from the
+  // browser, the cookie header may exist (Next.js / other cookies) but not include
+  // `testforge_session`, which would cause Prism to return 401.
+  const cookie = headers.get("cookie") ?? "";
+  if (!cookie.includes("testforge_session=")) {
+    const nextCookie = cookie.trim().length > 0 ? `${cookie}; testforge_session=mock` : "testforge_session=mock";
+    headers.set("cookie", nextCookie);
+  }
+
   const init: RequestInit = {
     method: req.method,
     headers,
